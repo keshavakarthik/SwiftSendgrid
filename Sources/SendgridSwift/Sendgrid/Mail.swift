@@ -109,12 +109,14 @@ public final class Mail : StringValuePairConvertible {
 //MARK: Mail Interfaces
 extension Mail {
     
-    public func sendMail(completion:@escaping(Bool,[String:Any])->Void) {
+    public func sendMail(apiKey:String,
+                         completion:@escaping(Bool,[String:Any])->Void) {
         do{
             let mail            = self.stringValuePairs
             let mailString      = try mail.jsonEncodedString()
             let targetURL       = Sendgrid.MAIL_SEND_V3
-            NetworkUtility.shared.asynchronousMailSend(targetURL, jsonString: mailString) {
+            let authroization   = "Bearer " + apiKey
+            NetworkUtility.shared.asynchronousMailSend(targetURL, authorization: authroization, jsonString: mailString) {
                 (result,resultJSON) in
                 completion(result,resultJSON)
                 return
