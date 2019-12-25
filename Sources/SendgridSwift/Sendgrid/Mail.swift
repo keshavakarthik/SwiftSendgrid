@@ -110,20 +110,23 @@ public final class Mail : StringValuePairConvertible {
 extension Mail {
     
     public func sendMail(apiKey:String,
-                         completion:@escaping(Bool,[String:Any])->Void) {
+                         completion:@escaping(Int?,String?,[String:Any]?)->Void) {
         do{
             let mail            = self.stringValuePairs
             let mailString      = try mail.jsonEncodedString()
             let targetURL       = Sendgrid.MAIL_SEND_V3
             let authroization   = "Bearer " + apiKey
-            NetworkUtility.shared.asynchronousMailSend(targetURL, authorization: authroization, jsonString: mailString) {
-                (result,resultJSON) in
-                completion(result,resultJSON)
+            NetworkUtilities.shared.asynchronousNetworkRequest(targetURL, httpMethod: .post, authorization: authroization,
+                                                               postString: mailString, headers: [(.contentType,"application/json")])
+            {
+                (responseCode,responseString,responseJSON) in
+                 
+                completion(responseCode,responseString,responseJSON)
                 return
             }
             
         } catch {
-            completion(false,["status":"FAILURE","message":"JSON Conversion failed for Mail Object"])
+            completion(400,nil,["status":"FAILURE","message":"JSON Conversion failed for Mail Object"])
             return
         }
     }
